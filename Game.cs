@@ -16,47 +16,8 @@ using System.Reflection;
 
 namespace Soliter
 {
-    /// <summary>
-    /// Расширенная панель
-    /// </summary>
-    class PanelEnhanced : Panel
-    {
-        /// <summary>
-        /// событие OnPaintBackground
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            // Перегружаем функцию стирания фона базового класса,
-            // Решение проблемы обновления окна, увеличения и мерцания изображения
-            return;
-        }
-
-        /// <summary>
-        /// событие OnPaint
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // Используем двойную буферизацию
-            this.DoubleBuffered = true;
-            // перерисовка фона перемещается сюда
-            if (this.BackgroundImage != null)
-            {
-                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                e.Graphics.DrawImage(
-                    this.BackgroundImage,
-                    new System.Drawing.Rectangle(0, 0, this.Width, this.Height),
-                    0,
-                    0,
-                    this.BackgroundImage.Width,
-                    this.BackgroundImage.Height,
-                    System.Drawing.GraphicsUnit.Pixel);
-            }
-            base.OnPaint(e);
-        }
-    }
-
+    
+    // класс всей игровой формы
     public partial class Game : Form
     {
         
@@ -64,7 +25,7 @@ namespace Soliter
         const int hCard = 180;
         const int pass = 10;
         string userName;
-
+        // инициализация объекта Game
         public Game(string userName)
         {
             //[DllImport("kernel32.dll", SetLastError = true)]
@@ -154,13 +115,14 @@ namespace Soliter
         List<Card> move_stack = new List<Card>();
         List<Card> save_stack;
 
-        int a = 0;
         bool moveFlag = false;
         bool firstStart = true;
         DateTime date = new DateTime(0, 0);
         Random rnd = new Random();
 
-
+        // класс для перезагрузки и начала игры.( очищаем списки, создаем колоду, 
+        // добовляем карты в список, создание списка по мастям, перемешиваем рандомно колоду,
+        //
         private void Game_Load(object sender, EventArgs e)
         {
          
@@ -237,13 +199,12 @@ namespace Soliter
                 List<Card> diamondsDeck = new List<Card>();
                 List<Card> heartsDeck = new List<Card>();
                 List<Card> peaksDeck = new List<Card>();
-
             for (int i = cards.Count - 1; i >= 1; i--)
             {
                 int j = rnd.Next(i + 1);
                 (cards[j], cards[i]) = (cards[i], cards[j]);
             }
-
+            //пробегаемся по колоде
             foreach (Card card in cards)
             {
                 switch (card.Suit){
@@ -263,7 +224,9 @@ namespace Soliter
                         break;
                 }
             }
-
+            //разбиваем колоду на две части, чтобы в обоих находилась любая комбинация красных карт
+            // от двойки до туза и любая комбинация от двойки до туза 
+            //( для того чтобы косынка собиралась)
             List<Card> t1 = new List<Card>();
             List<Card> t2 = new List<Card>();
             switch (rnd.Next(4))
@@ -431,13 +394,13 @@ namespace Soliter
         {
 
         }
-
+        //рендоринг 
         private void panel_Paint(object sender, PaintEventArgs e)
         {
             Pen pen = new Pen(Color.Black, 2);
             pen.DashPattern = new float[] { 2, 2 };
 
-
+            //отрисовка верхнего части
             for (int i = 0; i <= 6; i++)
             {
                 if (i != 2)
@@ -445,7 +408,7 @@ namespace Soliter
                     e.Graphics.DrawRectangle(pen, (wCard + pass) * i, 0, wCard, hCard);
                 }
             }
-
+            // нижнего ряда
             for (int i = 0; i <= 6; i++)
             {
                 e.Graphics.DrawRectangle(pen, (wCard + pass) * i, pass + hCard, wCard, hCard);
@@ -623,7 +586,6 @@ namespace Soliter
             //e.Graphics.DrawImage(a_d.Image, a, 300);
 
         }
-
         private void reset_timer_Tick(object sender, EventArgs e)
         {
             if (!moveFlag)
@@ -655,7 +617,7 @@ namespace Soliter
                 if (stack7.Count != 0)
                     if (stack7[stack7.Count - 1].Closed)
                         stack7[stack7.Count - 1].Closed = false;
-
+                // проверка победы
                 if (t_stack1.Count != 0 &&
                     t_stack2.Count != 0 &&
                     t_stack3.Count != 0 &&
